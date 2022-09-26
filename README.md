@@ -50,9 +50,9 @@ If you are missing a specific feature, algorithm, or serialization, feel free to
 		<th colspan="2"><a href="https://tools.ietf.org/html/rfc7518#section-5">Content Encryption</a></th>
 		<th colspan="2"><a href="https://tools.ietf.org/html/rfc7518#section-6">Keys</a></th>
 	</tr>
-	<tr><td><code>HS256</code></td><td></td>                   <td><code>RSA1_5</code></td><td>:white_check_mark:</td>       <td><code>A128CBC-HS256</code></td><td>:white_check_mark:</td> <td><code>RSA</code></td><td>:white_check_mark:</td></tr>
-	<tr><td><code>HS384</code></td><td></td>                   <td><code>RSA-OAEP</code></td><td>:white_check_mark:</td>     <td><code>A192CBC-HS384</code></td><td></td>                   <td><code>EC</code></td><td>:white_check_mark:</td></tr>
-	<tr><td><code>HS512</code></td><td></td>                   <td><code>RSA-OAEP-256</code></td><td>:white_check_mark:</td> <td><code>A256CBC-HS512</code></td><td>:white_check_mark:</td> <td><code>oct</code></td><td>:white_check_mark:</td></tr>
+	<tr><td><code>HS256</code></td><td>:white_check_mark:</td>                   <td><code>RSA1_5</code></td><td>:white_check_mark:</td>       <td><code>A128CBC-HS256</code></td><td>:white_check_mark:</td> <td><code>RSA</code></td><td>:white_check_mark:</td></tr>
+	<tr><td><code>HS384</code></td><td>:white_check_mark:</td>                   <td><code>RSA-OAEP</code></td><td>:white_check_mark:</td>     <td><code>A192CBC-HS384</code></td><td></td>                   <td><code>EC</code></td><td>:white_check_mark:</td></tr>
+	<tr><td><code>HS512</code></td><td>:white_check_mark:</td>                   <td><code>RSA-OAEP-256</code></td><td>:white_check_mark:</td> <td><code>A256CBC-HS512</code></td><td>:white_check_mark:</td> <td><code>oct</code></td><td>:white_check_mark:</td></tr>
 	<tr><td><code>RS256</code></td><td>:white_check_mark:</td> <td><code>A128KW</code></td><td>:white_check_mark:</td>       <td><code>A128GCM</code></td><td></td>                         <th rowspan="14"></th><th rowspan="14"></th></tr>
 	<tr><td><code>RS384</code></td><td>:white_check_mark:</td> <td><code>A192KW</code></td><td>:white_check_mark:</td>       <td><code>A192GCM</code></td><td></td>
 	<tr><td><code>RS512</code></td><td>:white_check_mark:</td> <td><code>A256KW</code></td><td>:white_check_mark:</td>       <td><code>A256GCM</code></td><td></td>
@@ -95,7 +95,7 @@ platform :ios, '10.0'
 use_frameworks!
 
 target '<Your Target Name>' do
-    pod 'JOSESwift'
+    pod 'JOSESwift', '~> 2.3'
 end
 ```
 
@@ -106,17 +106,19 @@ Then install it by running `pod install`. More documentation on using CocoaPods 
 To integrate JOSESwift in your Xcode project, include it in your `Cartfile`:
 
 ```
-github "airsidemobile/JOSESwift"
+github "airsidemobile/JOSESwift" ~> 2.3
 ```
 
 Then build it by running `carthage update` and drag the built framework into your Xcode project. More documentation on using Carthage can be found [here](https://github.com/Carthage/Carthage).
 
 ### Swift Package Manager
 
-To integrate JOSESwift in your Xcode project as a Swift package, follow Apple's article on how to [add package dependencies to your app](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app). In short, include the following dependency in your `Package.swift` file:
+To integrate JOSESwift in your Xcode project as a Swift package, follow Apple's article on how to [add package dependencies to your app](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+
+Alternatively, when using Swift Package Manager manually include the following dependency in your `Package.swift` file. See [Apple's documentation](https://developer.apple.com/documentation/swift_packages/package/dependency) for more details on specifying dependency version requirements.
 
 ``` swift
-.package(url: "https://github.com/airsidemobile/JOSESwift.git")
+.package(url: "https://github.com/airsidemobile/JOSESwift.git", from: "2.3.0")
 ```
 
 ## Usage
