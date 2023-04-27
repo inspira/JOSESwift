@@ -82,8 +82,7 @@ public struct Encrypter {
 
             let contentEncryptionContext = try contentEncryptionAlgorithm
                 .makeContentEncrypter(contentEncryptionKey: context.contentKey)
-                .encrypt(headerData: context.headerData,
-                         payload: payload)
+                .encrypt(header: header, payload: payload)
 
             return EncryptionContext(
                 encryptedKey: context.encryptedKey,
@@ -96,8 +95,7 @@ public struct Encrypter {
 
             let contentEncryptionContext = try contentEncryptionAlgorithm
                 .makeContentEncrypter(contentEncryptionKey: contentEncryptionKey)
-                .encrypt(headerData: header.data(),
-                         payload: payload)
+                .encrypt(header: header, payload: payload)
 
             return EncryptionContext(
                 encryptedKey: encryptedKey,

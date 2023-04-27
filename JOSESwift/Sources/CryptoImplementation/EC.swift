@@ -310,7 +310,7 @@ internal struct EC {
             } else {
                 contentKey = randomBytes(size: encryption.keyBitSize / 8)
             }
-            encryptedKey = try! AES.wrap(rawKey: contentKey, keyEncryptionKey: kek, algorithm: keyWrapAlgorithm)
+            encryptedKey = try! AESCrypt.wrap(rawKey: contentKey, keyEncryptionKey: kek, algorithm: keyWrapAlgorithm)
         } else {
             contentKey = kek
             encryptedKey = Data()
@@ -361,7 +361,7 @@ internal struct EC {
         let kek = try keyAgreementCompute(with: algorithm, encryption: encryption, privateKey: privateKey, publicKey: ephemeralPubKey, apu: apu, apv: apv)
 
         if let keyWrapAlgorithm = algorithm.keyWrapAlgorithm {
-            let unwrap = try AES.unwrap(wrappedKey: encryptedKey, keyEncryptionKey: kek, algorithm: keyWrapAlgorithm)
+            let unwrap = try AESCrypt.unwrap(wrappedKey: encryptedKey, keyEncryptionKey: kek, algorithm: keyWrapAlgorithm)
             return unwrap
         } else {
             return kek
