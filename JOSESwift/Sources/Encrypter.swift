@@ -22,6 +22,7 @@
 //
 
 import Foundation
+import CryptoSwift
 
 public struct Encrypter {
     private let keyManagementMode: EncryptionKeyManagementMode

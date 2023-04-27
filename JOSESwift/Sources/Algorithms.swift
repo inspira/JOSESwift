@@ -113,12 +113,16 @@ public enum ContentEncryptionAlgorithm: String {
     /// Content encryption using AES_128_CBC_HMAC_SHA_256
     case A128CBCHS256 = "A128CBC-HS256"
 
+    case AES256GCM = "A256GCM"
+
     var keyBitSize: Int {
         switch self {
         case .A128CBCHS256:
             return 256
         case .A256CBCHS512:
             return 512
+        case .AES256GCM:
+            return 256
         }
     }
 
@@ -128,6 +132,8 @@ public enum ContentEncryptionAlgorithm: String {
             return 16
         case .A256CBCHS512:
             return 32
+        case .AES256GCM:
+            return 16
         }
     }
 }
