@@ -38,11 +38,15 @@ fileprivate extension ContentEncryptionAlgorithm {
         switch self {
         case .A256CBCHS512:
             return CCAlgorithm(kCCAlgorithmAES)
-
+            
         case .A128CBCHS256:
             return CCAlgorithm(kCCAlgorithmAES)
-        case .AES256GCM:
-             return CCAlgorithm(kCCAlgorithmAES)
+            
+        case .A256GCM:
+            return CCAlgorithm(kCCAlgorithmAES)
+            
+        case .A128GCM:
+            return CCAlgorithm(kCCAlgorithmAES)
         }
     }
 
@@ -53,8 +57,10 @@ fileprivate extension ContentEncryptionAlgorithm {
 
         case .A128CBCHS256:
             return key.count == kCCKeySizeAES128
-        case .AES256GCM:
+        case .A256GCM:
             return key.count == kCCKeySizeAES256
+        case .A128GCM:
+            return key.count == kCCKeySizeAES128
         }
     }
 }
@@ -128,7 +134,7 @@ enum AESCrypt {
 
             return ciphertext
             
-        case .AES256GCM:
+        case .A256GCM, .A128GCM:
                 let ivkey = initializationVector.hexEncodedString()
                 let key = encryptionKey.hexEncodedString()
                 let gcm = GCM(iv: [UInt8](hex: ivkey), mode: .combined)
@@ -155,7 +161,7 @@ enum AESCrypt {
         and initializationVector: Data
     ) throws -> Data {
         switch algorithm {
-        case .A256CBCHS512, .A128CBCHS256, .AES256GCM:
+        case .A256CBCHS512, .A128CBCHS256, .A256GCM, .A128GCM:
             guard algorithm.checkAESKeyLength(for: decryptionKey) else {
                 throw AESError.keyLengthNotSatisfied
             }

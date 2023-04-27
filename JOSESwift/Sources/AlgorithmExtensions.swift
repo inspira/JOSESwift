@@ -24,14 +24,14 @@
 import Foundation
 
 extension ContentEncryptionAlgorithm {
-    var hmacAlgorithm: HMACAlgorithm? {
+    var hmacAlgorithm: HMACAlgorithm {
         switch self {
         case .A256CBCHS512:
             return .SHA512
-        case .A128CBCHS256:
+        case .A128CBCHS256, .A256GCM:
             return .SHA256
-        case .A256GCM, .A128GCM:
-            return nil
+        case .A128GCM:
+            return .SHA1
         }
     }
 

@@ -80,10 +80,6 @@ public enum KeyManagementAlgorithm: String, CaseIterable {
     case ECDH_ES_A192KW = "ECDH-ES+A192KW"
     ///  ECDH-ES using Concat KDF and CEK wrapped with "A256KW"
     case ECDH_ES_A256KW = "ECDH-ES+A256KW"
-    /// Content encryption using AES GCM with 256-bit key
-    case A256GCM = "A256GCM"
-    /// Content encryption using AES GCM with 128-bit key
-    case A128GCM = "A128GCM"
 
     public var keyWrapAlgorithm: KeyManagementAlgorithm? {
         switch self {
@@ -153,6 +149,7 @@ public enum HMACAlgorithm: String {
     case SHA512
     case SHA384
     case SHA256
+    case SHA1
 
     var outputLength: Int {
         switch self {
@@ -162,6 +159,8 @@ public enum HMACAlgorithm: String {
             return 48
         case .SHA256:
             return 32
+        case .SHA1:
+            return 16
         }
     }
 }
