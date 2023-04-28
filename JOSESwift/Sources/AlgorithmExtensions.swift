@@ -69,18 +69,21 @@ extension ContentEncryptionAlgorithm {
         case .A128CBCHS256:
             return (inputKey.subdata(in: 0..<16), inputKey.subdata(in: 16..<32))
         case .A256GCM, .A128GCM:
-            throw JWEError.contentEncryptionAlgorithmMismatch
+            return (hmacKey: Data(), encryptionKey: inputKey)
         }
+        //case .A256GCM, .A128GCM:
+        //    throw JWEError.contentEncryptionAlgorithmMismatch
+        //}
     }
 
     func authenticationTag(for hmac: Data) throws -> Data {
         switch self {
-        case .A256CBCHS512:
+        case .A256CBCHS512, .A256GCM:
             return hmac.subdata(in: 0..<32)
-        case .A128CBCHS256:
+        case .A128CBCHS256, .A128GCM:
             return hmac.subdata(in: 0..<16)
-        case .A256GCM, .A128GCM:
-            throw JWEError.contentEncryptionAlgorithmMismatch
+        //case .A256GCM, .A128GCM:
+        //    throw JWEError.contentEncryptionAlgorithmMismatch
         }
     }
 }
