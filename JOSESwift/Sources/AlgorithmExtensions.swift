@@ -39,10 +39,8 @@ extension ContentEncryptionAlgorithm {
         switch self {
         case .A256CBCHS512:
             return 64
-        case .A128CBCHS256, .A256GCM:
+        case .A128CBCHS256, .A256GCM, .A128GCM:
             return 32
-        case .A128GCM:
-            return 16
         }
     }
 
