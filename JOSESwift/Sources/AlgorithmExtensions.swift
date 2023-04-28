@@ -82,8 +82,6 @@ extension ContentEncryptionAlgorithm {
             return hmac.subdata(in: 0..<32)
         case .A128CBCHS256, .A128GCM:
             return hmac.subdata(in: 0..<16)
-        //case .A256GCM, .A128GCM:
-        //    throw JWEError.contentEncryptionAlgorithmMismatch
         }
     }
 }

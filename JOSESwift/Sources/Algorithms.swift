@@ -135,7 +135,7 @@ public enum ContentEncryptionAlgorithm: String {
         case .A256CBCHS512:
             return 32
         case .A256GCM, .A128GCM:
-            return -1  // TODO: exception
+            return 16  // TODO: confirmar
         }
     }
 }
