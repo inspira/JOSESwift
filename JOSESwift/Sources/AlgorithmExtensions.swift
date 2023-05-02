@@ -66,8 +66,10 @@ extension ContentEncryptionAlgorithm {
             return (inputKey.subdata(in: 0..<32), inputKey.subdata(in: 32..<64))
         case .A128CBCHS256:
             return (inputKey.subdata(in: 0..<16), inputKey.subdata(in: 16..<32))
-        case .A256GCM, .A128GCM:
+        case .A256GCM:
             return (hmacKey: Data(), encryptionKey: inputKey)
+        case .A128GCM:
+            return (hmacKey: Data(), encryptionKey: inputKey.subdata(in: 0..<16))
         }
         //case .A256GCM, .A128GCM:
         //    throw JWEError.contentEncryptionAlgorithmMismatch
