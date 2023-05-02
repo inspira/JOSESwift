@@ -113,16 +113,18 @@ public enum ContentEncryptionAlgorithm: String {
     /// Content encryption using AES_128_CBC_HMAC_SHA_256
     case A128CBCHS256 = "A128CBC-HS256"
 
-    case AES256GCM = "A256GCM"
+    case A256GCM = "A256GCM"
+    
+    case A128GCM = "A128GCM"
 
     var keyBitSize: Int {
         switch self {
-        case .A128CBCHS256:
+        case .A128CBCHS256, .A256GCM:
             return 256
         case .A256CBCHS512:
             return 512
-        case .AES256GCM:
-            return 256
+        case .A128GCM:
+            return 128
         }
     }
 
@@ -132,8 +134,8 @@ public enum ContentEncryptionAlgorithm: String {
             return 16
         case .A256CBCHS512:
             return 32
-        case .AES256GCM:
-            return 16
+        case .A256GCM, .A128GCM:
+            return 16  // TODO: confirmar
         }
     }
 }
@@ -147,6 +149,7 @@ public enum HMACAlgorithm: String {
     case SHA512
     case SHA384
     case SHA256
+    case SHA1
 
     var outputLength: Int {
         switch self {
@@ -156,6 +159,8 @@ public enum HMACAlgorithm: String {
             return 48
         case .SHA256:
             return 32
+        case .SHA1:
+            return 16
         }
     }
 }

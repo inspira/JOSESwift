@@ -18,8 +18,11 @@ struct AESGCMEncryption {
     }
     
 
-    func encrypt(_ plaintext: Data, additionalAuthenticatedData: Data) throws -> ContentEncryptionContext {
-        let iv = try SecureRandom.generate(count: contentEncryptionAlgorithm.initializationVectorLength)
+    func encrypt(_ plaintext: Data, initializationVector: Data?, additionalAuthenticatedData: Data) throws -> ContentEncryptionContext {
+        
+        let iv = initializationVector == nil ?
+            try SecureRandom.generate(count: contentEncryptionAlgorithm.initializationVectorLength)
+        : initializationVector!
 
         let keys = try contentEncryptionAlgorithm.retrieveKeys(from: contentEncryptionKey)
         let encryptionKey = keys.encryptionKey
@@ -52,7 +55,7 @@ extension AESGCMEncryption: ContentEncrypter {
     func encrypt(header: JWEHeader, payload: Payload) throws -> ContentEncryptionContext {
         let plaintext = payload.data()
         let additionalAuthenticatedData = header.data().base64URLEncodedData()
-        return try encrypt(plaintext, additionalAuthenticatedData: additionalAuthenticatedData)
+        return try encrypt(plaintext, initializationVector: nil, additionalAuthenticatedData: additionalAuthenticatedData)
         
     }
 }

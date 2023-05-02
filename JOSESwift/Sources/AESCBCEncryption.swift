@@ -48,7 +48,7 @@ struct AESCBCEncryption {
         concatData.append(additionalAuthenticatedData.getByteLengthAsOctetHexData())
 
         let hmac = try HMAC.calculate(from: concatData, with: hmacKey, using: contentEncryptionAlgorithm.hmacAlgorithm)
-        let authenticationTag = contentEncryptionAlgorithm.authenticationTag(for: hmac)
+        let authenticationTag = try contentEncryptionAlgorithm.authenticationTag(for: hmac)
 
         return ContentEncryptionContext(
             ciphertext: ciphertext,
@@ -87,7 +87,7 @@ struct AESCBCEncryption {
         )
 
         guard
-            authenticationTag.timingSafeCompare(with: contentEncryptionAlgorithm.authenticationTag(for: hmacOutput))
+            authenticationTag.timingSafeCompare(with: try contentEncryptionAlgorithm.authenticationTag(for: hmacOutput))
         else {
             throw JWEError.hmacNotAuthenticated
         }
@@ -106,9 +106,9 @@ struct AESCBCEncryption {
 }
 
 extension AESCBCEncryption: ContentEncrypter {
-    func encrypt(headerData: Data, payload: Payload) throws -> ContentEncryptionContext {
+    func encrypt(header: JWEHeader, payload: Payload) throws -> ContentEncryptionContext {
         let plaintext = payload.data()
-        let additionalAuthenticatedData = headerData.base64URLEncodedData()
+        let additionalAuthenticatedData = header.data().base64URLEncodedData()
 
         return try encrypt(plaintext, additionalAuthenticatedData: additionalAuthenticatedData)
     }
