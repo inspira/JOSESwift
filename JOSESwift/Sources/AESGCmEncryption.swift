@@ -24,7 +24,9 @@ struct AESGCMEncryption {
             try SecureRandom.generate(count: contentEncryptionAlgorithm.initializationVectorLength)
         : initializationVector!
 
-        let keys = try contentEncryptionAlgorithm.retrieveKeys(from: contentEncryptionKey)
+        // Simplificação específica do 3DS SDK : criptografa em A128GCM somente o CReq
+        // Idealmente deveria vir essa informação de quem chama a lib
+        let keys = try contentEncryptionAlgorithm.retrieveKeys(from: contentEncryptionKey, direction: "left")
         let encryptionKey = keys.encryptionKey
         let  encryptTuple = try! CC.encryptAuth(blockMode: .gcm, algorithm:  .aes, data: plaintext, aData: additionalAuthenticatedData, key: encryptionKey, iv: iv, tagLength: 16)
         return ContentEncryptionContext(
@@ -43,7 +45,9 @@ struct AESGCMEncryption {
         guard contentEncryptionAlgorithm.checkKeyLength(for: contentEncryptionKey) else {
             throw JWEError.keyLengthNotSatisfied
         }
-        let keys = try contentEncryptionAlgorithm.retrieveKeys(from: contentEncryptionKey)
+        // Simplificação específica do 3DS SDK : descriptografa em A128GCM somente o CRes
+        // Idealmente deveria vir essa informação de quem chama a lib
+        let keys = try contentEncryptionAlgorithm.retrieveKeys(from: contentEncryptionKey, direction: "right")
         let decryptionKey = keys.encryptionKey
         let plaintext = try! CC.decryptAuth(blockMode: .gcm, algorithm: .aes, data: ciphertext, aData: additionalAuthenticatedData, key: decryptionKey, iv: initializationVector, tagLength: 16)
         return plaintext

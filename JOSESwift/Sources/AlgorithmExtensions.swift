@@ -57,7 +57,7 @@ extension ContentEncryptionAlgorithm {
          return key.count == keyLength
     }
 
-    func retrieveKeys(from inputKey: Data) throws -> (hmacKey: Data, encryptionKey: Data) {
+    func retrieveKeys(from inputKey: Data, direction: String = "left") throws -> (hmacKey: Data, encryptionKey: Data) {
         guard checkKeyLength(for: inputKey) else {
             throw JWEError.keyLengthNotSatisfied
         }
@@ -69,11 +69,14 @@ extension ContentEncryptionAlgorithm {
         case .A256GCM:
             return (hmacKey: Data(), encryptionKey: inputKey)
         case .A128GCM:
-            return (hmacKey: Data(), encryptionKey: inputKey.subdata(in: 0..<16))
+            if direction == "left" {
+                return (hmacKey: Data(), encryptionKey: inputKey.subdata(in: 0..<16))
+            } else {
+                let bytes = Array(inputKey)
+                let trimmedKey = Array(bytes[(bytes.count - 16)..<bytes.count])
+                return (hmacKey: Data(), encryptionKey: Data(trimmedKey))
+            }
         }
-        //case .A256GCM, .A128GCM:
-        //    throw JWEError.contentEncryptionAlgorithmMismatch
-        //}
     }
 
     func authenticationTag(for hmac: Data) throws -> Data {
