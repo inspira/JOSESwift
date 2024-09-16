@@ -22,9 +22,9 @@
 //
 
 import Foundation
+import CryptoSwift
 
-// Todo [#214]: Move generic type to initializer in next major release.
-public struct Encrypter<KeyType> {
+public struct Encrypter {
     private let keyManagementMode: EncryptionKeyManagementMode
     private let keyManagementAlgorithm: KeyManagementAlgorithm
     private let contentEncryptionAlgorithm: ContentEncryptionAlgorithm
@@ -40,23 +40,27 @@ public struct Encrypter<KeyType> {
     ///       encrypted.
     ///     - For _direct encryption_ it is the secret symmetric key (`Data`) shared between the sender and the
     ///       recipient.
-    public init?(
+    public init?<KeyType>(
         keyManagementAlgorithm: KeyManagementAlgorithm,
         contentEncryptionAlgorithm: ContentEncryptionAlgorithm,
-        encryptionKey: KeyType
+        encryptionKey: KeyType,
+        agreementPartyUInfo: Data? = nil,
+        agreementPartyVInfo: Data? = nil
     ) {
         self.keyManagementAlgorithm = keyManagementAlgorithm
         self.contentEncryptionAlgorithm = contentEncryptionAlgorithm
 
         let mode = keyManagementAlgorithm.makeEncryptionKeyManagementMode(
             contentEncryptionAlgorithm: contentEncryptionAlgorithm,
-            encryptionKey: encryptionKey
+            encryptionKey: encryptionKey,
+            agreementPartyUInfo: agreementPartyUInfo,
+            agreementPartyVInfo: agreementPartyVInfo
         )
         guard let keyManagementMode = mode else { return nil }
         self.keyManagementMode = keyManagementMode
     }
 
-    func encrypt(header: JWEHeader, payload: Payload) throws -> EncryptionContext {
+    func encrypt(header: inout JWEHeader, payload: Payload) throws -> EncryptionContext {
         guard let alg = header.keyManagementAlgorithm, alg == keyManagementAlgorithm else {
             throw JWEError.keyManagementAlgorithmMismatch
         }
@@ -65,18 +69,41 @@ public struct Encrypter<KeyType> {
             throw JWEError.contentEncryptionAlgorithmMismatch
         }
 
-        let (contentEncryptionKey, encryptedKey) = try keyManagementMode.determineContentEncryptionKey()
+        if keyManagementAlgorithm.shouldContainEphemeralPublicKey {
+            let encryptedKey = try keyManagementMode.determineContentEncryptionKey(for: header)
 
-        let contentEncryptionContext = try contentEncryptionAlgorithm
-            .makeContentEncrypter(contentEncryptionKey: contentEncryptionKey)
-            .encrypt(header: header, payload: payload)
+            guard let context = try? JSONDecoder().decode(Encrypter.ECEncryptionContext.self, from: encryptedKey) else {
+                throw JWEError.hmacNotAuthenticated
+            }
 
-        return EncryptionContext(
-            encryptedKey: encryptedKey,
-            ciphertext: contentEncryptionContext.ciphertext,
-            authenticationTag: contentEncryptionContext.authenticationTag,
-            initializationVector: contentEncryptionContext.initializationVector
-        )
+            if let contextHeader = JWEHeader(context.headerData) {
+                header = contextHeader
+            }
+
+            let contentEncryptionContext = try contentEncryptionAlgorithm
+                .makeContentEncrypter(contentEncryptionKey: context.contentKey)
+                .encrypt(header: header, payload: payload)
+
+            return EncryptionContext(
+                encryptedKey: context.encryptedKey,
+                ciphertext: contentEncryptionContext.ciphertext,
+                authenticationTag: contentEncryptionContext.authenticationTag,
+                initializationVector: contentEncryptionContext.initializationVector
+            )
+        } else {
+            let (contentEncryptionKey, encryptedKey) = try keyManagementMode.determineContentEncryptionKey()
+
+            let contentEncryptionContext = try contentEncryptionAlgorithm
+                .makeContentEncrypter(contentEncryptionKey: contentEncryptionKey)
+                .encrypt(header: header, payload: payload)
+
+            return EncryptionContext(
+                encryptedKey: encryptedKey,
+                ciphertext: contentEncryptionContext.ciphertext,
+                authenticationTag: contentEncryptionContext.authenticationTag,
+                initializationVector: contentEncryptionContext.initializationVector
+            )
+        }
     }
 }
 
@@ -87,18 +114,24 @@ extension Encrypter {
         let authenticationTag: Data
         let initializationVector: Data
     }
+
+    struct ECEncryptionContext: Codable {
+        let headerData: Data
+        let encryptedKey: Data
+        let contentKey: Data
+    }
 }
 
 // MARK: - Deprecated API
 
 extension Encrypter {
     @available(*, deprecated, message: "Use `init?(keyManagementAlgorithm:contentEncryptionAlgorithm:encryptionKey:)` instead")
-    public init?(keyEncryptionAlgorithm: AsymmetricKeyAlgorithm, encryptionKey key: KeyType, contentEncyptionAlgorithm: SymmetricKeyAlgorithm) {
+    public init?<KeyType>(keyEncryptionAlgorithm: AsymmetricKeyAlgorithm, encryptionKey key: KeyType, contentEncyptionAlgorithm: SymmetricKeyAlgorithm) {
         self.init(keyManagementAlgorithm: keyEncryptionAlgorithm, contentEncryptionAlgorithm: contentEncyptionAlgorithm, encryptionKey: key)
     }
 
     @available(*, deprecated, message: "Use `init?(keyManagementAlgorithm:contentEncryptionAlgorithm:encryptionKey:)` instead")
-    public init?(keyEncryptionAlgorithm: AsymmetricKeyAlgorithm, keyEncryptionKey kek: KeyType, contentEncyptionAlgorithm: SymmetricKeyAlgorithm) {
+    public init?<KeyType>(keyEncryptionAlgorithm: AsymmetricKeyAlgorithm, keyEncryptionKey kek: KeyType, contentEncyptionAlgorithm: SymmetricKeyAlgorithm) {
         self.init(keyEncryptionAlgorithm: keyEncryptionAlgorithm, encryptionKey: kek, contentEncyptionAlgorithm: contentEncyptionAlgorithm)
     }
 }

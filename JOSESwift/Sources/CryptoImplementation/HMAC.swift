@@ -38,6 +38,8 @@ fileprivate extension HMACAlgorithm {
             return CCAlgorithm(kCCHmacAlgSHA384)
         case .SHA256:
             return CCAlgorithm(kCCHmacAlgSHA256)
+        case .SHA1:
+            return CCAlgorithm(kCCHmacAlgSHA1)
         }
     }
 }

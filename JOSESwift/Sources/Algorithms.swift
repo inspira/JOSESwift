@@ -72,6 +72,36 @@ public enum KeyManagementAlgorithm: String, CaseIterable {
     case A256KW
     /// Direct encryption using a shared symmetric key as the content encryption key
     case direct = "dir"
+    ///  Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF
+    case ECDH_ES = "ECDH-ES"
+    ///  ECDH-ES using Concat KDF and CEK wrapped with "A128KW"
+    case ECDH_ES_A128KW = "ECDH-ES+A128KW"
+    ///  ECDH-ES using Concat KDF and CEK wrapped with "A192KW"
+    case ECDH_ES_A192KW = "ECDH-ES+A192KW"
+    ///  ECDH-ES using Concat KDF and CEK wrapped with "A256KW"
+    case ECDH_ES_A256KW = "ECDH-ES+A256KW"
+
+    public var keyWrapAlgorithm: KeyManagementAlgorithm? {
+        switch self {
+        case .ECDH_ES_A128KW:
+            return .A128KW
+        case .ECDH_ES_A192KW:
+            return .A192KW
+        case .ECDH_ES_A256KW:
+            return .A256KW
+        default:
+            return nil
+        }
+    }
+
+    var shouldContainEphemeralPublicKey: Bool {
+        switch self {
+        case .ECDH_ES, .ECDH_ES_A128KW, .ECDH_ES_A192KW, .ECDH_ES_A256KW:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 /// Cryptographic algorithms for content encryption.
@@ -82,6 +112,32 @@ public enum ContentEncryptionAlgorithm: String {
     case A256CBCHS512 = "A256CBC-HS512"
     /// Content encryption using AES_128_CBC_HMAC_SHA_256
     case A128CBCHS256 = "A128CBC-HS256"
+
+    case A256GCM = "A256GCM"
+    
+    case A128GCM = "A128GCM"
+
+    var keyBitSize: Int {
+        switch self {
+        case .A128CBCHS256, .A256GCM:
+            return 256
+        case .A256CBCHS512:
+            return 512
+        case .A128GCM:
+            return 128
+        }
+    }
+
+    var tagLength: Int {
+        switch self {
+        case .A128CBCHS256:
+            return 16
+        case .A256CBCHS512:
+            return 32
+        case .A256GCM, .A128GCM:
+            return 16  // TODO: confirmar
+        }
+    }
 }
 
 /// An algorithm for HMAC calculation.
@@ -93,6 +149,7 @@ public enum HMACAlgorithm: String {
     case SHA512
     case SHA384
     case SHA256
+    case SHA1
 
     var outputLength: Int {
         switch self {
@@ -102,6 +159,8 @@ public enum HMACAlgorithm: String {
             return 48
         case .SHA256:
             return 32
+        case .SHA1:
+            return 16
         }
     }
 }
